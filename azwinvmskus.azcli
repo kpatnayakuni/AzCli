@@ -1,0 +1,62 @@
+# Azure Cli to get the list of vm image skus
+#az login
+
+#   https://docs.microsoft.com/en-us/cli/azure/query-azure-cli?view=azure-cli-latest
+
+# Get location
+$location=$(az account list-locations --query "[?name=='westus'].name" --output tsv)
+#   az account list-locations --query "[?name=='westus']" -o table
+#   Name    DisplayName    Latitude    Longitude
+#   ------  -------------  ----------  -----------
+#   westus  West US        37.783      -122.417
+
+# Get publisher
+$publisher=$(az vm image list-publishers -l $location --query "[?name=='MicrosoftWindowsServer'].name" -o tsv)
+#   az vm image list-publishers -l $location --query "[?name=='MicrosoftWindowsServer']" -o table
+#   Name                    Location
+#   ----------------------  ----------
+#   MicrosoftWindowsServer  westus
+
+# Get Offer
+$offer=$(az vm image list-offers --location $location --publisher $publisher --query "[?name=='WindowsServer'].name" -o tsv)
+#   az vm image list-offers --location $location --publisher $publisher --query "[?name=='WindowsServer']" -o table
+#   Name           Location
+#   -------------  ----------
+#   WindowsServer  westus
+
+# Get SKUs
+az vm image list-skus --publisher $publisher --location $location --offer $offer --query '[].{Name:name, AOSUS:properties.automaticOSUpgradeProperties.automaticOSUpgradeSupported}' -o table 
+#   Name                                            AOSUS
+#   ----------------------------------------------  -------
+#   2008-R2-SP1                                     False
+#   2008-R2-SP1-smalldisk                           False
+#   2008-R2-SP1-zhcn                                False
+#   2012-Datacenter                                 False
+#   2012-datacenter-gensecond                       False
+#   2012-Datacenter-smalldisk                       False
+#   2012-Datacenter-zhcn                            False
+#   2012-R2-Datacenter                              True
+#   2012-r2-datacenter-gensecond                    False
+#   2012-R2-Datacenter-smalldisk                    False
+#   2012-R2-Datacenter-zhcn                         False
+#   2016-Datacenter                                 True
+#   2016-datacenter-gensecond                       False
+#   2016-Datacenter-Server-Core                     False
+#   2016-Datacenter-Server-Core-smalldisk           False
+#   2016-Datacenter-smalldisk                       True
+#   2016-Datacenter-with-Containers                 True
+#   2016-Datacenter-with-RDSH                       False
+#   2016-Datacenter-zhcn                            False
+#   2019-Datacenter                                 True
+#   2019-Datacenter-Core                            False
+#   2019-Datacenter-Core-smalldisk                  False
+#   2019-Datacenter-Core-with-Containers            False
+#   2019-Datacenter-Core-with-Containers-smalldisk  False
+#   2019-datacenter-gensecond                       False
+#   2019-Datacenter-smalldisk                       True
+#   2019-Datacenter-with-Containers                 True
+#   2019-Datacenter-with-Containers-smalldisk       False
+#   2019-Datacenter-zhcn                            False
+#   Datacenter-Core-1803-with-Containers-smalldisk  False
+#   Datacenter-Core-1809-with-Containers-smalldisk  False
+#   Datacenter-Core-1903-with-Containers-smalldisk  False
